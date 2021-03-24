@@ -95,11 +95,9 @@ public class CSV2JSON {
         int missingData=0;
         try{
             for (String a : data){ //checking to see if all fields are there
-                if (a==null)
-                missingData++;
+                if (a==null) missingData++;
             }
-            if(missingData!=0)
-                throw new CSVFileInvalidException();
+            if(missingData!=0) throw new CSVFileInvalidException();
         }
         catch (CSVFileInvalidException e){
             try{
@@ -117,17 +115,55 @@ public class CSV2JSON {
                 for (int i=0;i<data.length;i++){
                     System.err.print((data[i]==null ? "***":data[i]) +(i==data.length-1 ? "" : ","));
                 }
+                read.close();
+                write.close();
                 System.exit(0);
             }
             
         } //now we can finally make our json file
-        String[] values;
+        String[] values=new String[data.length];
         write.println("["); //the json is an array of objects so we have to do this
+        int lineNum=0; //to see what line we are on when theres an error with the data
         while (read.hasNext()){
-            values=convert(read.nextLine());
-            write.println("\t{"); //we also need to keep proper tabs to make the json easier to enterpret
-            
+            boolean hasError=true; //this needs to be initiallized as true to go into the loop to check if there is an error
+            while(hasError){
+                values=convert(read.nextLine());
+                lineNum++;
+                try{
+                    for (String a:values) 
+                        if (a==null) throw new CSVDataMissing();
+                    hasError=false;
+                }
+                catch (CSVDataMissing e){
+                    hasError=true;
+                    try{
+                        PrintStream errorOut=new PrintStream(new FileOutputStream("error_log.txt"),true); //enable autoflush so we dont have to close it manually
+                        System.setErr(errorOut);
+                    }
+                    catch(FileNotFoundException f){
+                        System.out.println("Error: Could not make error log, putting everything into console!");
+                    }
+                    finally{
+                        String missingEntries="";
+                        System.out.println("In file "+fileIn+" line "+lineNum+" not converted to JSON: missing data");
+                        System.err.println("In file "+fileIn+" line "+lineNum);
+                        for(int i=0; i<values.length;i++){
+                            if (values[i]==null) missingEntries+=data[i]+" ";
+                            System.err.print((values[i]==null ? "***":values[i])+"\t");
+                        }
+                        System.err.println("\nMissing: "+missingEntries);
+                    }
+                }
+            }
+            write.println("\t{"); //we need to keep proper tabs to make the json easier to enterpret
+            for(int i=0;i<data.length;i++){
+                write.println("\t\t\""+data[i]+"\": "+(isInteger(values[i]) ? values[i] : ("\""+values[i]+"\""))+(i==data.length-1 ? "":","));
+            }
+            write.println("\t}"+(read.hasNextLine() ? "," : ""));
         }
+        write.println("]");
+        write.close();
+        read.close();
     }
     public static boolean isInteger(String s){
         Scanner sc = new Scanner(s);
