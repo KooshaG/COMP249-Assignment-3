@@ -87,7 +87,9 @@ public class CSV2JSON {
 
     public static String[] convert(String csv){
         String regex=",(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)";
-        return csv.split(regex);
+        String[] sep=csv.split(regex);
+        sep[0]=sep[0].substring(1);
+        return sep;
     }
 
     public static void ProcessFilesForValidation(Scanner read, String fileIn, PrintWriter write, String fileOut){
@@ -157,11 +159,12 @@ public class CSV2JSON {
             }
             write.println("\t{"); //we need to keep proper tabs to make the json easier to enterpret
             for(int i=0;i<data.length;i++){
-                write.println("\t\t\""+data[i]+"\": "+(isInteger(values[i]) ? values[i] : ("\""+values[i]+"\""))+(i==data.length-1 ? "":","));
-            }
-            write.println("\t}"+(read.hasNextLine() ? "," : ""));
-        }
-        write.println("]");
+                write.println("\t\t\""+data[i]+"\": "+(isInteger(values[i]) ? values[i] : ("\""+(values[i].charAt(0)=='"' ? values[i].substring(1, values[i].length()-1):values[i])+"\""))+
+                (i==data.length-1 ? "":","));
+            }                                                           //so whats happening on the line above is that the entry is checked if it is an integer, 
+            write.println("\t}"+(read.hasNextLine() ? "," : ""));       //if it is, then it will write the string as is with no formatting, if its a string,
+        }                                                               //add quotation marks on it. But, if the string already has quotation marks on it,
+        write.println("]");                                             //take the substring of it with no quotes so that there are no double quotations present
         write.close();
         read.close();
     }
