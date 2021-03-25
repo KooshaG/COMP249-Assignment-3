@@ -1,6 +1,6 @@
 [
 	{
-		"ate": "2/10/2020",
+		"﻿Date": "12/10/2020",
 		"Driver's Name": "Adam",
 		"Driver's Licence number": 234857,
 		"Car Make": "BMW X5",
@@ -10,17 +10,7 @@
 		"Mileage made": 5000
 	},
 	{
-		"ate": "6/11/2020",
-		"Driver's Name": "Steve",
-		"Driver's Licence number": 4544554,
-		"Car Make": "Toyota Camry",
-		"Plate Number": "5KJNR28",
-		"Meter at the start of trip": 210000,
-		"Meter at the end of trip": 211000,
-		"Mileage made": 1000
-	},
-	{
-		"ate": "/2/2021",
+		"﻿Date": "1/2/2021",
 		"Driver's Name": "Sami",
 		"Driver's Licence number": 6539854,
 		"Car Make": "Jeep Cherokee",

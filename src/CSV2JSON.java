@@ -88,7 +88,7 @@ public class CSV2JSON {
     public static String[] convert(String csv){
         String regex=",(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)";
         String[] sep=csv.split(regex);
-        sep[0]=sep[0].substring(1);
+        //sep[0]=sep[0].substring(1);
         return sep;
     }
 
@@ -97,7 +97,7 @@ public class CSV2JSON {
         int missingData=0;
         try{
             for (String a : data){ //checking to see if all fields are there
-                if (a==null) missingData++;
+                if (a.isBlank()) missingData++;
             }
             if(missingData!=0) throw new CSVFileInvalidException();
         }
@@ -112,11 +112,13 @@ public class CSV2JSON {
             finally{
                 System.out.println("File "+fileIn+"is invalid: field is missing.");
                 System.out.println("File is not converted to JSON.");
-                System.err.println("File "+fileIn+"is invalid");
+                System.err.println("File "+fileIn+" is invalid");
                 System.err.println("Missing Field: "+(data.length-missingData)+" detected "+missingData+" missing.");
                 for (int i=0;i<data.length;i++){
-                    System.err.print((data[i]==null ? "***":data[i]) +(i==data.length-1 ? "" : ","));
+                    System.err.print((data[i].isBlank() ? "***":data[i]) +(i==data.length-1 ? "" : ","));
                 }
+                File input=new File(fileOut);
+                input.delete();
                 read.close();
                 write.close();
                 System.exit(0);
@@ -133,7 +135,7 @@ public class CSV2JSON {
                 lineNum++;
                 try{
                     for (String a:values) 
-                        if (a==null) throw new CSVDataMissing();
+                        if (a.isBlank()) throw new CSVDataMissing();
                     hasError=false;
                 }
                 catch (CSVDataMissing e){
@@ -150,8 +152,8 @@ public class CSV2JSON {
                         System.out.println("In file "+fileIn+" line "+lineNum+" not converted to JSON: missing data");
                         System.err.println("In file "+fileIn+" line "+lineNum);
                         for(int i=0; i<values.length;i++){
-                            if (values[i]==null) missingEntries+=data[i]+" ";
-                            System.err.print((values[i]==null ? "***":values[i])+"\t");
+                            if (values[i].isBlank()) missingEntries+=data[i]+" ";
+                            System.err.print((values[i].isEmpty() ? "***":values[i])+"\t");
                         }
                         System.err.println("\nMissing: "+missingEntries);
                     }
