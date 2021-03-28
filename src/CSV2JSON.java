@@ -93,55 +93,56 @@ public class CSV2JSON {
     }
 
     public static void ProcessFilesForValidation(Scanner read, String fileIn, PrintWriter write, String fileOut){
-        String[] data = convert(read.nextLine());
+        String[] data = convert(read.nextLine()); //fields
         int missingData=0;
         try{
             for (String a : data){ //checking to see if all fields are there
-                if (a.isBlank()) missingData++;
+                if (a.isEmpty()) missingData++;
             }
             if(missingData!=0) throw new CSVFileInvalidException();
         }
         catch (CSVFileInvalidException e){
             try{
-                PrintStream errorOut=new PrintStream(new FileOutputStream("error_log.txt"),true); //enable autoflush so we dont have to close it manually
+                PrintStream errorOut=new PrintStream(new FileOutputStream("error_log.txt",true),true); //enable autoflush so we dont have to close it manually
                 System.setErr(errorOut);
             }
             catch(FileNotFoundException f){
                 System.out.println("Error: Could not make error log, putting everything into console!");
             }
             finally{
-                System.out.println("File "+fileIn+"is invalid: field is missing.");
+                System.out.println("File "+fileIn+" is invalid: field is missing.");
                 System.out.println("File is not converted to JSON.");
                 System.err.println("File "+fileIn+" is invalid");
                 System.err.println("Missing Field: "+(data.length-missingData)+" detected "+missingData+" missing.");
                 for (int i=0;i<data.length;i++){
-                    System.err.print((data[i].isBlank() ? "***":data[i]) +(i==data.length-1 ? "" : ","));
+                    System.err.print((data[i].isEmpty() ? "***":data[i]) +(i==data.length-1 ? "" : ","));
                 }
+                System.err.println("\n\n*****************************************************************************\n");
                 File input=new File(fileOut);
-                input.delete();
-                read.close();
                 write.close();
-                System.exit(0);
+                read.close();
+                input.delete();
             }
-            
+            return;
+
         } //now we can finally make our json file
         String[] values=new String[data.length];
         write.println("["); //the json is an array of objects so we have to do this
         int lineNum=0; //to see what line we are on when theres an error with the data
-        while (read.hasNext()){
-            boolean hasError=true; //this needs to be initiallized as true to go into the loop to check if there is an error
-            while(hasError){
+        while (read.hasNextLine()){
+            boolean hasError=false; //this needs to be initiallized as true to go into the loop to check if there is an error
+            while(!hasError){
                 values=convert(read.nextLine());
                 lineNum++;
                 try{
                     for (String a:values) 
-                        if (a.isBlank()) throw new CSVDataMissing();
-                    hasError=false;
+                        if (a.isEmpty()) throw new CSVDataMissing();
+                    hasError=true;
                 }
                 catch (CSVDataMissing e){
-                    hasError=true;
+                    hasError=false;
                     try{
-                        PrintStream errorOut=new PrintStream(new FileOutputStream("error_log.txt"),true); //enable autoflush so we dont have to close it manually
+                        PrintStream errorOut=new PrintStream(new FileOutputStream("error_log.txt",true),true); //enable autoflush so we dont have to close it manually
                         System.setErr(errorOut);
                     }
                     catch(FileNotFoundException f){
@@ -152,16 +153,17 @@ public class CSV2JSON {
                         System.out.println("In file "+fileIn+" line "+lineNum+" not converted to JSON: missing data");
                         System.err.println("In file "+fileIn+" line "+lineNum);
                         for(int i=0; i<values.length;i++){
-                            if (values[i].isBlank()) missingEntries+=data[i]+" ";
+                            if (values[i].isEmpty()) missingEntries+=data[i]+" ";
                             System.err.print((values[i].isEmpty() ? "***":values[i])+"\t");
                         }
                         System.err.println("\nMissing: "+missingEntries);
+                        System.err.println("\n\n*****************************************************************************\n");
                     }
                 }
             }
             write.println("\t{"); //we need to keep proper tabs to make the json easier to enterpret
             for(int i=0;i<data.length;i++){
-                write.println("\t\t\""+data[i]+"\": "+(isInteger(values[i]) ? values[i] : ("\""+(values[i].charAt(0)=='"' ? values[i].substring(1, values[i].length()-1):values[i])+"\""))+
+                write.println("\t\t\""+data[i]+"\": "+(isInteger(values[i]) ? values[i] : (values[i].charAt(0)=='"' ? values[i]:"\""+values[i]+"\""))+
                 (i==data.length-1 ? "":","));
             }                                                           //so whats happening on the line above is that the entry is checked if it is an integer, 
             write.println("\t}"+(read.hasNextLine() ? "," : ""));       //if it is, then it will write the string as is with no formatting, if its a string,
