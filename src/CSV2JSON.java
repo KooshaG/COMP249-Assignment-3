@@ -1,6 +1,9 @@
+import java.io.BufferedReader;
 import java.io.PrintWriter;
 import java.io.PrintStream;
 import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.IOException;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.File;
@@ -15,10 +18,10 @@ public class CSV2JSON {
         PrintWriter maintOut=null,rentalOut=null;
         String maintFileNameIn, rentFileNameIn, maintFileNameOut, rentFileNameOut;
 
-        System.out.print("Please enter the Maintenance Record with its file extention: ");
+        System.out.print("Please enter the Maintenance Record with its file extension: ");
         maintFileNameIn=input.nextLine();
         maintFileNameOut=maintFileNameIn.split("\\.")[0]+".json"; //we need the escape slashes because . has a special meaning in regex
-        System.out.print("Please enter the Rental Record with its file extention: ");
+        System.out.print("Please enter the Rental Record with its file extension: ");
         rentFileNameIn=input.nextLine();
         rentFileNameOut=rentFileNameIn.split("\\.")[0]+".json";
 
@@ -69,6 +72,52 @@ public class CSV2JSON {
         System.out.println("Converting CSV into JSON...");
         ProcessFilesForValidation(maintenanceIn, maintFileNameIn, maintOut, maintFileNameOut);
         ProcessFilesForValidation(rentalIn, rentFileNameIn, rentalOut, rentFileNameOut);
+        
+        // User choosing which file to read from
+        System.out.print("Please enter the name of a JSON file that you would like displayed: ");
+    	String outFile = input.nextLine();
+
+    	BufferedReader breader = null;
+    	// First attempt
+        try {
+        	breader = new BufferedReader(new FileReader(outFile));
+        }
+        catch(FileNotFoundException fe) {
+        	// Second attempt
+        	System.out.print("That file could not be found. You have one more chance to enter a valid file to read: ");
+        	outFile = input.nextLine();
+        	try {
+            	breader = new BufferedReader(new FileReader(outFile));
+        	}
+        	catch(FileNotFoundException fnf) {
+        		System.out.print("That file could not be found. Both attempts have been used. Terminating program.");
+        		System.exit(0);
+        	}
+        }
+        try {
+        	int recordNum = 1;		// Iterating through the records
+        	// Read characters until it prints -1, which is EOF
+        	int x = breader.read();
+        	while (x != -1) {
+        		char c = (char)x;
+        		
+        		if (c == '{') {
+        			System.out.println("Record #" + recordNum++ + " contents:");
+        		}
+        		else if (c == '}')
+        			System.out.println("End of record #" + recordNum + ".");
+        		else if (c != '"' && c != ',' && c != '[' && c != ']')
+        			System.out.print(c);
+        			
+        		x = breader.read();
+        	}
+        	breader.close();
+        }
+        catch(IOException io) {
+        	io.printStackTrace();
+        }
+    	
+        
     }
     
     /*
