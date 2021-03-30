@@ -9,7 +9,7 @@ import java.lang.Exception;
  * @author Adamo, Koosha
  * Exception called if csv file is invalid
  */
-public class CSVFileInvalidException extends Exception{
+public class CSVFileInvalidException extends InvalidException{
     
     public CSVFileInvalidException(){
         super("Data field is missing");

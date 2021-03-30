@@ -9,7 +9,7 @@ import java.lang.Exception;
  * @author Adamo, Koosha
  * Exception called if csv data is missing
  */
-public class CSVDataMissing extends Exception {
+public class CSVDataMissing extends InvalidException {
     
     public CSVDataMissing(){
         super("Missing Data");
