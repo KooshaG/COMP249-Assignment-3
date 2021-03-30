@@ -138,13 +138,22 @@ public class CSV2JSON {
     I took this regex from here: https://stackoverflow.com/questions/1757065/java-splitting-a-comma-separated-string-but-ignoring-commas-in-quotes
     */
 
+    /** Splits csv attribute fields over commas that are not between quotation marks
+     * @param csv Line of csv containing csv attribute names
+     * @return Array of attribute names
+     */
     public static String[] convert(String csv){
         String regex=",(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)";
         String[] sep=csv.split(regex);
-        //sep[0]=sep[0].substring(1);
         return sep;
     }
 
+    /** Processing input files and creates output files
+     * @param read Scanner reading input from csv files
+     * @param fileIn Name of input csv file
+     * @param write PrintWriter writing into JSON files
+     * @param fileOut Name of output JSON file
+     */
     public static void ProcessFilesForValidation(Scanner read, String fileIn, PrintWriter write, String fileOut){
         String[] data = convert(read.nextLine()); //fields
         int missingData=0;
@@ -181,9 +190,9 @@ public class CSV2JSON {
         } //now we can finally make our json file
         String[] values=new String[data.length];
         write.println("["); //the json is an array of objects so we have to do this
-        int lineNum=0; //to see what line we are on when theres an error with the data
+        int lineNum=0; //to see what line we are on when there's an error with the data
         while (read.hasNextLine()){
-            boolean hasError=false; //this needs to be initiallized as true to go into the loop to check if there is an error
+            boolean hasError=false; //this needs to be initialized as true to go into the loop to check if there is an error
             while(!hasError){
                 values=convert(read.nextLine());
                 lineNum++;
@@ -225,16 +234,20 @@ public class CSV2JSON {
         write.close();
         read.close();
     }
+    /** Checks if String parameter is an integer using Scanner object to avoid other errors
+     * @param s String with possible integer
+     * @return true if hasNextInt in String s
+     */
     public static boolean isInteger(String s){
         Scanner sc = new Scanner(s);
         if (sc.hasNextInt()){
             sc.close();
             return true;
-        } 
+        }
         else{
             sc.close();
             return false;
-        } 
+        }
     }
 }
 

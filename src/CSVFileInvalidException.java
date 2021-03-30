@@ -5,6 +5,10 @@
 // Due March 31, 2021
 // ---------------------------------------
 import java.lang.Exception;
+/**
+ * @author Adamo, Koosha
+ * Exception called if csv file is invalid
+ */
 public class CSVFileInvalidException extends Exception{
     
     public CSVFileInvalidException(){

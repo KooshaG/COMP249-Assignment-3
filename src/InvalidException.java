@@ -13,6 +13,5 @@ public class InvalidException extends Exception{
     public InvalidException(String s){
         super(s);
     }
-    //we might need to add extra stuff to this class later
 
 }

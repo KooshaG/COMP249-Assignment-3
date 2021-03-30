@@ -5,6 +5,10 @@
 // Due March 31, 2021
 // ---------------------------------------
 import java.lang.Exception;
+/**
+ * @author Adamo, Koosha
+ * Exception called if csv data is missing
+ */
 public class CSVDataMissing extends Exception {
     
     public CSVDataMissing(){
