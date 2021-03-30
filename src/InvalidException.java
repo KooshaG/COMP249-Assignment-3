@@ -1,3 +1,9 @@
+// ---------------------------------------
+// COMP 249
+// Assignment 3
+// Written By: Adamo Orsini (40174716) and Koosha Gholipour (40176826)
+// Due March 31, 2021
+// ---------------------------------------
 import java.lang.Exception;
 public class InvalidException extends Exception{
 

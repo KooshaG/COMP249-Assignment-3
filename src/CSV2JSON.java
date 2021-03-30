@@ -1,3 +1,9 @@
+// ---------------------------------------
+// COMP 249
+// Assignment 3
+// Written By: Adamo Orsini (40174716) and Koosha Gholipour (40176826)
+// Due March 31, 2021
+// ---------------------------------------
 import java.io.BufferedReader;
 import java.io.PrintWriter;
 import java.io.PrintStream;
@@ -10,7 +16,6 @@ import java.io.File;
 import java.util.Scanner;
 
 public class CSV2JSON {
-
     
     public static void main(String[] args) {
         Scanner input=new Scanner(System.in);
@@ -24,7 +29,6 @@ public class CSV2JSON {
         System.out.print("Please enter the Rental Record with its file extension: ");
         rentFileNameIn=input.nextLine();
         rentFileNameOut=rentFileNameIn.split("\\.")[0]+".json";
-
 
         try{
             maintenanceIn=new Scanner(new FileInputStream(maintFileNameIn));
@@ -72,6 +76,7 @@ public class CSV2JSON {
         System.out.println("Converting CSV into JSON...");
         ProcessFilesForValidation(maintenanceIn, maintFileNameIn, maintOut, maintFileNameOut);
         ProcessFilesForValidation(rentalIn, rentFileNameIn, rentalOut, rentFileNameOut);
+        System.out.println("Converting complete.");
         
         // User choosing which file to read from
         System.out.print("Please enter the name of a JSON file that you would like displayed: ");
@@ -101,12 +106,11 @@ public class CSV2JSON {
         	while (x != -1) {
         		char c = (char)x;
         		
-        		if (c == '{') {
-        			System.out.println("Record #" + recordNum++ + " contents:");
-        		}
+        		if (c == '{')
+        			System.out.println("Record #" + recordNum + " contents:");
         		else if (c == '}')
-        			System.out.println("End of record #" + recordNum + ".");
-        		else if (c != '"' && c != ',' && c != '[' && c != ']')
+        			System.out.println("\nEnd of record #" + recordNum++ + ".");
+        		else if (Character.isLetterOrDigit(c) || c == ' ' || c == '\n' || c == ',' || c == ':' || c == '-' || c == '/' || c == '(' || c == ')')
         			System.out.print(c);
         			
         		x = breader.read();
