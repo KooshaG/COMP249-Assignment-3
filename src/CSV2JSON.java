@@ -19,63 +19,57 @@ public class CSV2JSON {
     
     public static void main(String[] args) {
         Scanner input=new Scanner(System.in);
-        Scanner maintenanceIn=null,rentalIn=null;
-        PrintWriter maintOut=null,rentalOut=null;
-        String maintFileNameIn, rentFileNameIn, maintFileNameOut, rentFileNameOut;
+        Scanner[] readers;
+        PrintWriter[] writers;
+        String[] fileNamesIn;
+        String[] fileNamesOut;
+        int files;
 
-        System.out.print("Please enter the Maintenance Record with its file extension: ");
-        maintFileNameIn=input.nextLine();
-        maintFileNameOut=maintFileNameIn.split("\\.")[0]+".json"; //we need the escape slashes because . has a special meaning in regex
-        System.out.print("Please enter the Rental Record with its file extension: ");
-        rentFileNameIn=input.nextLine();
-        rentFileNameOut=rentFileNameIn.split("\\.")[0]+".json";
-
-        try{
-            maintenanceIn=new Scanner(new FileInputStream(maintFileNameIn));
-        }
-        catch(FileNotFoundException e){
-            System.out.println("\nCould not open file "+maintFileNameIn+" for reading");
-            System.out.println("Please check if file exists! Program will terminate after closing all open files");
-            input.close();
+        System.out.print("How many files are you converting?: ");
+        files=Integer.parseInt(input.nextLine()); //we need to do this because using nextInt leaves a \n in the buffer
+        if (files<1) {
+            System.out.println("Okay, no files will be converted. Thank you!");
             System.exit(0);
         }
-        try{
-            maintOut=new PrintWriter(new FileOutputStream(maintFileNameOut));
-        }
-        catch(FileNotFoundException e){
-            System.out.println("Could not create file "+maintFileNameOut+" for reading");
-            System.out.println("Please check if file exists! Program will terminate after closing all open files");
-            input.close();
-            maintenanceIn.close();
-            System.exit(0);
-        }
-        try{
-            rentalIn=new Scanner(new FileInputStream(rentFileNameIn));
-        }
-        catch(FileNotFoundException e){
-            System.out.println("Could not open file "+rentFileNameIn+" for reading");
-            System.out.println("Please check if file exists! Program will terminate after closing all open files");
-            input.close();
-            maintOut.close();
-            maintenanceIn.close();
-            System.exit(0);
-        }
-        try{
-            rentalOut=new PrintWriter(new FileOutputStream(rentFileNameOut));
-        }
-        catch(FileNotFoundException e){
-            System.out.println("Could not create file "+rentFileNameOut+" for reading");
-            System.out.println("Please check if file exists! Program will terminate after closing all open files");
-            input.close();
-            maintenanceIn.close();
-            rentalIn.close();
-            maintOut.close();
-            new File(maintFileNameOut).delete();
-            System.exit(0);
+        readers=new Scanner[files];
+        writers=new PrintWriter[files];
+        fileNamesIn=new String[files];
+        fileNamesOut=new String[files];
+        for(int i=0;i<files;i++){
+            System.out.print("Please enter record #"+(i+1)+" with its file extension: ");
+            fileNamesIn[i]=input.nextLine().trim();
+            fileNamesOut[i]=fileNamesIn[i].split("\\.")[0]+".json"; //we need the escape slashes because . has a special meaning in regex
+            System.out.println(fileNamesOut[i]+"\t"+fileNamesOut.length);
+            try{
+                readers[i]=new Scanner(new FileInputStream(fileNamesIn[i])); //make all the scanners
+            }
+            catch(FileNotFoundException e){
+                System.out.println("\nCould not open file "+fileNamesIn[i]+" for reading");
+                System.out.println("Please check if file exists! Program will terminate after closing all open files");
+                for(int j=0; j<i;j++){
+                    readers[j].close();
+                    System.exit(0);
+                }
+            }
+            try{
+                writers[i]=new PrintWriter(new FileOutputStream(fileNamesOut[i])); //make all the writers
+            }
+            catch(FileNotFoundException e){
+                System.out.println("\nCould not open file "+fileNamesOut[i]+" for writing");
+                System.out.println("Please check if file exists! Program will terminate after closing all open files");
+                for(int j=0; j<i;j++){
+                    readers[j].close();
+                    writers[j].close();
+                    File temp=new File(fileNamesOut[j]);
+                    temp.delete();
+                    System.exit(0);
+                }
+            }
         }
         System.out.println("Converting CSV into JSON...");
-        ProcessFilesForValidation(maintenanceIn, maintFileNameIn, maintOut, maintFileNameOut);
-        ProcessFilesForValidation(rentalIn, rentFileNameIn, rentalOut, rentFileNameOut);
+        for(int i=0;i<files;i++){
+            ProcessFilesForValidation(readers[i], fileNamesIn[i], writers[i], fileNamesOut[i]);
+        }
         System.out.println("Converting complete.");
         
         // User choosing which file to read from
@@ -121,7 +115,7 @@ public class CSV2JSON {
         	io.printStackTrace();
         }
     	
-        
+        input.close();
     }
     
     /*
