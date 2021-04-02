@@ -148,7 +148,7 @@ public class CSV2JSON {
         return sep;
     }
 
-    /** Processing input files and creates output files
+    /** Processing input files in csv format and creates output files in json format
      * @param read Scanner reading input from csv files
      * @param fileIn Name of input csv file
      * @param write PrintWriter writing into JSON files
@@ -184,6 +184,7 @@ public class CSV2JSON {
                 write.close();
                 read.close();
                 input.delete();
+                System.exit(0);
             }
             return;
 
@@ -192,7 +193,7 @@ public class CSV2JSON {
         write.println("["); //the json is an array of objects so we have to do this
         int lineNum=0; //to see what line we are on when there's an error with the data
         while (read.hasNextLine()){
-            boolean hasError=false; //this needs to be initialized as true to go into the loop to check if there is an error
+            boolean hasError=false;
             while(!hasError){
                 values=convert(read.nextLine());
                 lineNum++;
@@ -202,7 +203,7 @@ public class CSV2JSON {
                     hasError=true;
                 }
                 catch (CSVDataMissing e){
-                    hasError=false;
+                    hasError=false; //once the error is caught, we reset hasError
                     try{
                         PrintStream errorOut=new PrintStream(new FileOutputStream("error_log.txt",true),true); //enable autoflush so we dont have to close it manually
                         System.setErr(errorOut);
@@ -230,7 +231,7 @@ public class CSV2JSON {
             }                                                           //so whats happening on the line above is that the entry is checked if it is an integer, 
             write.println("\t}"+(read.hasNextLine() ? "," : ""));       //if it is, then it will write the string as is with no formatting, if its a string,
         }                                                               //add quotation marks on it. But, if the string already has quotation marks on it,
-        write.println("]");                                             //take the substring of it with no quotes so that there are no double quotations present
+        write.println("]");                                             //don't add any extra quotations so that there are no double quotations present
         write.close();
         read.close();
     }
